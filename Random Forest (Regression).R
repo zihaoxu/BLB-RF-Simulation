@@ -3,14 +3,24 @@
 library(randomForest)
 library(MASS)
 
+result <- c()
+set.seed(47)
 
-train = sample(1:nrow(Boston), nrow(Boston)/2)
-rf.boston = randomForest(medv~., boston.train, 
-                         importance = TRUE)
-yhat.rf = predict(rf.boston, newdata = Boston[-train,])
-boston.test = Boston[-train, "medv"]
-mean((yhat.rf- boston.test)^2)
-#importance(rf.boston)
+for(i in 1:15){
+    train = sample(1:nrow(Boston), nrow(Boston)/2)
+    boston.train = Boston[train,]
+    rf.boston = randomForest(medv~., boston.train, ntree = 500, sampling_factor = 5, importance = TRUE)
+    yhat.rf = predict(rf.boston, newdata = Boston[-train,])
+    boston.test = Boston[-train, "medv"]
+    print(mean((yhat.rf - boston.test)^2))
+    result <- c(result, mean((yhat.rf - boston.test)^2))
+}
+
+
+print(mean(result))
+importance(rf.boston)
+
+
 #varImpPlot(rf.boston)
 
 set.seed(47)
