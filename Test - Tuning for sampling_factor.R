@@ -6,10 +6,10 @@ library(MASS)
 result <- c()
 set.seed(47)
 
-for(i in 1:15){
+for(i in 1:20){
     train = sample(1:nrow(Boston), nrow(Boston)/2)
     boston.train = Boston[train,]
-    rf.boston = randomForest(medv~., boston.train, ntree = 500, sampling_factor = 5, importance = TRUE)
+    rf.boston = randomForest(medv~., boston.train, ntree = 500, sampling_factor = 1, importance = TRUE)
     yhat.rf = predict(rf.boston, newdata = Boston[-train,])
     boston.test = Boston[-train, "medv"]
     print(mean((yhat.rf - boston.test)^2))

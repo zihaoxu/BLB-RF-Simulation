@@ -20,14 +20,14 @@ tempfunc <- function (df, train_test_ratio = 0.5, gamma = .7, ntrees = 500){
     subsample <- sample(x, n^gamma, FALSE)
     x <- setdiff(x, subsample)
     
-    rf <- randomForest(y~.-yexp, data = train[subsample, ], ntree = ntrees, sampling_factor = s)
+    rf <- randomForest(medv~., data = train[subsample, ], ntree = ntrees, sampling_factor = s)
     
     predict(rf, test)
   }
   
   yhat.rf <- apply(subsamps, 1, mean)
   se <- apply(subsamps, 1, sd) / sqrt(s)
-  real_y <- df[-train.index, "y"]
+  real_y <- df[-train.index, "medv"]
   
   return(data.frame(yhat = yhat.rf, se, yexp = real_y, diff = real_y-yhat.rf))
   
