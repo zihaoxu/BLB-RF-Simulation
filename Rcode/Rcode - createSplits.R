@@ -10,7 +10,7 @@ createSplits <- function(df, nfolds = 5){
 
 
 split_up <- createSplits(Sonar, 5)
-unlist(lapply(split_up, nrow))
+#unlist(lapply(split_up, nrow))
 
 for(fold in split_up){
   print(mean(fold$V1))
