@@ -50,7 +50,7 @@ calculateMSE <- function(N, k, s, linear = TRUE, clustered = FALSE, cosine = FAL
 # different Ns, ks (pct), and ss
 
 Ns <- c(25,50,100,200,400)
-ks <- c(5)
+ks <- c(2,5)
 df <- data.frame(n = numeric(0), s = numeric(0), pct = numeric(0), MSE = numeric(0))
 ss <- c(2,4,6,8,10)
 
