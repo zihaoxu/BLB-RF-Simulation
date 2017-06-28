@@ -2,12 +2,9 @@ library(randomForest)
 library(MASS)
 library(MixSim)
 library(doParallel)
-registerDoParallel(cores = detectCores()-10)
-print(paste("detectCores()-10 = ", detectCores()-10))
+registerDoParallel(cores = 20)
+print(paste("detectCores() = ", detectCores()))
 source('/home/zxu/func.R')
-
-#library(devtools)
-#install_github("zihaoxu/randomForestBLB")
 
 
 makeTestTrainList <- function(N, k, ndim, linear = TRUE, clustered = FALSE, cosine = FALSE, seed = 47){
@@ -16,7 +13,7 @@ makeTestTrainList <- function(N, k, ndim, linear = TRUE, clustered = FALSE, cosi
       if(linear){
           data.all <- makeLinearDF(N + N/k, seq(5,5*ndim,5), 2)
       }else if(clustered){
-          num.cluster = 25
+          num.cluster = 20
           data.all <- makeClusteredDF(num.dim = ndim, sample.size = N+N/k, num.clusters = num.cluster, cluster.means = seq(10,10*num.cluster,10), error.SD = 1, seed = 47)
       }else if(cosine){
           data.all <- makeCosineDF(N + N/k, numberX = ndim)
@@ -32,8 +29,8 @@ makeTestTrainList <- function(N, k, ndim, linear = TRUE, clustered = FALSE, cosi
 }
 
 createSplits <- function(df, gamma, s){
-    rownames(df) <- 1:nrow(df)
     n <- nrow(df)
+    rownames(df) <- 1:n
     allIndex <- 1:n 
     subsamples <- list()
     for(i in 1:s){
@@ -46,6 +43,7 @@ createSplits <- function(df, gamma, s){
 
 calculateMSE <- function(test.train.list, N, gamma, s, ntree, rep.time = 5){
     result <- c()
+    times <- c()
     sampling_factor = round(N/(N^gamma))
 
     data.train <- test.train.list[[1]]
@@ -55,6 +53,7 @@ calculateMSE <- function(test.train.list, N, gamma, s, ntree, rep.time = 5){
     pred.data <- data.test[,2:(ncol(data.test)-1)]
     
     for(kj in 1:rep.time){
+      start.time <- as.numeric(Sys.time())
       subsamples <- createSplits(data.train, gamma = gamma, s=s)
       subsampleResults <- matrix(nrow = nrow(data.test))
       subsampleResults <- foreach(ww=1:length(subsamples), .combine = cbind)%dopar%{
@@ -66,59 +65,51 @@ calculateMSE <- function(test.train.list, N, gamma, s, ntree, rep.time = 5){
       }else{
         finalPred <- subsampleResults
       }
+      time.taken <- as.numeric(Sys.time()) - start.time
+      times <- c(times, time.taken)
       result <- c(result, mean((finalPred - data.test.y)^2))
-      #print(result)
     }
-  return(mean(result))
+  return(list(mean(result), mean(times)))
 }
 
 
 
 # different Ns, ks (pct), and ss
 
-Ns <- c(1000) # , 500, 1000, 2000, 4000, 8000, 16000, 32000, 64000, 128000
+Ns <- c(10000)
 k <- 5
 df <- data.frame(n = numeric(0), gamma = numeric(0),s = numeric(0), ntree = numeric(0), time = numeric(0),  MSE = numeric(0))
 #ss <- c(1,3,6,9,12) #seq(2,22,4)
-#ntrees <- c(100) # c(50,100,200)
-gas <- c(.5,.6, .7,.8, .9, 1) #seq(0.5,.9,.1)
+ntrees <- c(500) # c(50,100,200)
+gas <- c(.5,.6, .7,.8, .9) #seq(0.5,.9,.1)
 
 #mean((yhat.rf - data.test)^2)
 for(N in Ns){
     for(ga in gas){
       if(ga == .5){
         ss <- seq(1,18,3)
-        ntrees <- c(100,500,1000) 
       }else if(ga == .6){
         ss <- seq(1,18,3)
-        ntrees <- c(100,500,1000) 
       }else if(ga == .7){
         ss <- seq(1,18,3)
-        ntrees <- c(50,100,500)
       }else if(ga == .8){
         ss <- seq(1,15,3)
-        ntrees <- c(50,100,500)
-      }else if(ga == .9){
-        ss <- seq(1,15,3)
-        ntrees <- c(25,100,250)
       }else{
         ss <- c(1,3,5)
-        ntrees <- c(25,100,250)
       }
       for(ntree in ntrees){
         for(s in ss){
-          start.time <- Sys.time()
-          train.test.list <- makeTestTrainList(N, k, ndim = 10, linear = FALSE, clustered  = TRUE)
-          mse <- calculateMSE(train.test.list, N = N, gamma = ga, s = s, ntree = ntree)
-          time.taken <- Sys.time() - start.time
+          train.test.list <- makeTestTrainList(N, k, ndim = 5, linear = FALSE, clustered  = TRUE)
+          result.list <- calculateMSE(train.test.list, N = N, gamma = ga, s = s, ntree = ntree)
+          mse <- result.list[[1]]
+          time.taken <- result.list[[2]]
           print(paste("N =", N, 'gamma = ', ga,'s =',s, 'ntree =',ntree, "time =", time.taken, 'MSE =', mse))
           df<-rbind(df, data.frame(n = N, gamma = ga, s = s, ntree = ntree, time = time.taken, MSE = mse))
         }
       }
     }
 }
-write.csv(df, 'Clustered_n_s_pct_MSE.csv')
-#write.csv(df, '/Users/zihaoxu/R_repos/BLB-RF-Sim/CSV/Clustered_n_s_pct_MSE.csv')
+write.csv(df, 'MSE~s.csv')
 
 
 
