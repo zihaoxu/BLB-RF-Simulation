@@ -109,7 +109,7 @@ for(N in Ns){
       }
     }
 }
-write.csv(df, 'MSE~s.csv')
+write.csv(df, 'MSE~s_clustered.csv')
 
 
 

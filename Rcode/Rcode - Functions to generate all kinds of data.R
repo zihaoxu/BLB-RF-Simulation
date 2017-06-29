@@ -70,28 +70,16 @@ makeClusteredDF <- function(num.dim, sample.size, num.clusters, cluster.means, e
 }
 
 
-########   3 * cos(pi*(x$X1 + x$X2))
+########   50 * cos(pi*(x$X1 + x$X2))
 
-makeCosineDF <- function(numobs, numberX = 4){
+makeCosineDF <- function(numobs, numberX = 5){
   xvalues <- c()
   for (i in 1:numberX){
     xvalues <- c(xvalues, runif(numobs, 0, 1))
   }
   x <- data.frame(matrix(xvalues, nrow = numobs, ncol = numberX))
-  yexp <- 3 * cos(pi*(x$X1 + x$X2))
-  df <- data.frame(y = yexp + rnorm(numobs,0, .1), x, yexp)
+  yexp <- 50 * cos(pi*(x$X1 + x$X2))
+  df <- data.frame(y = yexp + rnorm(numobs, 0, 1), x, yexp)
   return(df)
 }
 
-
-
-makeXorDF <- function(numobs, numberX = 4){
-  if(numberX%%2!=0){numberX-1}
-  nloop = numberX/2
-  xvalues <- c()
-  for (i in 1:nloop){
-    x1 <- runif(numobs,0,1)
-    x2 <- runif(numobs,0,1)
-    y <- xor(x1>.6, x2)
-  }
-}
