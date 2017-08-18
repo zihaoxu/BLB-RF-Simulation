@@ -9,7 +9,7 @@ makeTestTrainList <- function(N, k, ndim, linear = TRUE, clustered = FALSE, cosi
   set.seed(seed)
   
   if(linear){
-    data.all <- makeLinearDF(N + N/k, seq(5,5*ndim,5), 2)
+    data.all <- makeLinearDF(N + N/k, seq(5,5*ndim,5), 1)
   }else if(clustered){
     num.cluster = 20
     data.all <- makeClusteredDF(num.dim = ndim, sample.size = N+N/k, num.clusters = num.cluster, cluster.means = seq(10,10*num.cluster,10), error.SD = 1, seed = 47)

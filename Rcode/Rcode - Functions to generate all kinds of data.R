@@ -3,7 +3,7 @@ makeLinearDF <- function(numobs, b, constant){
   values <- c()
   m = length(b)
   for(i in 1:length(b)){
-    values = c(values, rnorm(numobs, mean = runif(1, 0, 10), sd = 1))
+    values = c(values, runif(numobs,0,1))
   }
   x <- matrix(values, nrow = numobs, ncol = m)
   y  = constant + x%*%b + rnorm(numobs)

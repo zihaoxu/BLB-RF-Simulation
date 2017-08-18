@@ -8,8 +8,8 @@ Ns <- c(10000)
 k <- 5
 df <- data.frame(n = numeric(0), gamma = numeric(0),s = numeric(0), ntree = numeric(0), time = numeric(0),  MSE = numeric(0))
 #ss <- c(1,3,6,9,12) #seq(2,22,4)
-ntrees <- c(500) # c(50,100,200)
-gas <- seq(0.5,1,.1) #seq(0.5,.9,.1)
+ntrees <- seq(25,500,25) # c(50,100,200)
+gas <- c(.75) #seq(0.5,.9,.1)
 
 #mean((yhat.rf - data.test)^2)
 for(N in Ns){
@@ -39,7 +39,7 @@ for(N in Ns){
     }
   }
 }
-write.csv(df, 'MSE~s_cosine.csv')
+write.csv(df, 'MSE~ntree_cosine.csv')
 
 
 
