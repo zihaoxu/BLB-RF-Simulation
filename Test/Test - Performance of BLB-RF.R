@@ -5,7 +5,7 @@ registerDoParallel(cores = detectCores())
 set.seed(47)
 
 
-tempfunc <- function (df, train_test_ratio = 0.5, gamma = .7, ntrees = 500){
+tempfunc <- function (df, train_test_ratio = 0.5, gamma = .7, s = 13, ntrees = 500){
   
   train.index <- sample(1:nrow(df), nrow(df)*train_test_ratio)
   train <- df[train.index,]
@@ -13,7 +13,6 @@ tempfunc <- function (df, train_test_ratio = 0.5, gamma = .7, ntrees = 500){
   
   x <- 1:nrow(train) #indices of training set
   n <- length(x) #size of training set
-  s <- floor(n / n^gamma) #number of subsamples
   
   subsamps <- foreach(i=1:s, .combine = cbind)%dopar%{
     # (1) Draw a subsample and create vector to store all the resampled responses. 
